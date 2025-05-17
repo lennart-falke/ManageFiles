@@ -1,21 +1,18 @@
 FROM python:3.12-slim
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# Change the working directory to the `app` directory
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
+
+# Setze das Arbeitsverzeichnis
 WORKDIR /app
 
-# Install dependencies
-RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=uv.lock,target=uv.lock \
-    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --frozen --no-install-project
+COPY pyproject.toml uv.lock ./
 
-# Copy the project into the image
-ADD . /app
-
-# Sync the project
+RUN uv venv
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen
 
-# Run with uvicorn localhost 
-CMD ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Kopiere den restlichen Code ins Image
+COPY .. /app
+COPY main.py /app
+# Starte den Server
+CMD ["uv", "run", "uvicorn", "server.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

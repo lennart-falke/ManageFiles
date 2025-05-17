@@ -1,20 +1,11 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from app.api import endpoints
+from api.endpoints import router as material_router
 
 app = FastAPI()
 
-# Middleware, z. B. für spätere React-Anfragen (CORS)
-app.add_middleware(
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
-# API-Routen einbinden
-app.include_router(endpoints.router, prefix="/api")
+app.include_router(material_router, prefix="/api")
 
 @app.get("/")
-def root():
-    return {"message": "API läuft"}
+async def root():
+    return {"message": "Hello World test mit Docker refresh"}
